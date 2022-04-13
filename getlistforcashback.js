@@ -1,4 +1,3 @@
-const dsteem = require("dsteem");
 const mysql = require("mysql2");
 const steem = require('steem');
 const fs = require("fs");            
@@ -40,11 +39,11 @@ let mytable = 'a'+d;
 //let fullbase = "alexmove.witness";
 //let fullbase = "вboylikegirl.wit";
 let fullbase = "alexmove.witness";
-let table = "fullbase";
+let table = "cashback";
 
 
 //let sql = "create table if not exists `"+fullbase+"`(id int primary key auto_increment, account varchar(255) UNIQUE KEY, ofme varchar(255), lastget varchar(255))";
-let sql = "create table if not exists `"+table+"`(id int primary key auto_increment, account varchar(255) UNIQUE KEY, ofme varchar(255), lastget varchar(255))";
+let sql = "create table if not exists `"+table+"`(id int primary key auto_increment, mv float, account varchar(255) UNIQUE KEY, ofme varchar(255), lastget varchar(255),lastsend varchar(255))";
 
 
 connection.query(sql, function(err, results) {
@@ -53,24 +52,13 @@ else console.log("Таблица создана");
 });
 
 steem.api.call('database_api.list_witness_votes',{start:[fullbase,""], limit:200, order:"by_witness_account"},function(err, result){
-	
-//	console.log(err, result);
 
-//JSON.parse(result);
 
 const myObjStr = JSON.stringify(result);
-
-//console.log(myObjStr);
-// "{"name":"Sammy","age":6,"favoriteFood":"Tofu"}"
-
-//console.log(JSON.parse(myObjStr));
 
 let what = JSON.parse(myObjStr);
 
  const users = result;
-   //console.log(users);
-   // console.log(users[votes].length);
-   // console.log(users[witness]);
 let aaa=0;
 
 function replacer(key, value) {
@@ -82,9 +70,11 @@ function replacer(key, value) {
 	  if (key === 'account')
 	  {
 			 console.log(value);
+			 console.log(d);
+			 console.log(d);
+			 console.log(d);
 
-		  //const sql4 = "INSERT INTO `"+fullbase+"`(account, ofme, lastget) VALUES('"+value+"','yes', '"+d+"')";
-		  const sql4 = "INSERT INTO `"+table+"`(sum,author, lastsend) VALUES('0','"+value+"','0')";
+		  const sql4 = "INSERT INTO `"+table+"`(mv,account, ofme, lastget,lastsend) VALUES('0','"+value+"','0',"+d+",'0')";
 		  
 		  connection.query(sql4, function(err, results) {
 			if(err) console.log(err);
@@ -96,23 +86,6 @@ function replacer(key, value) {
 }
 
 const userStr = JSON.stringify(result, replacer);
-// "{"id":229,"name":"Sammy"}"
 })	
 
 
-
-/*
-
-steem.api.getWitnessByAccount("alexmove", function(err, result) {
-	
-	JSON.parse('{"p": 5}', function(k, v) {
-  if (k === '') { return v; } // самое верхнее значение - возвращаем его
-  return v * 2;               // иначе возвращаем v * 2.
-});                           // { p: 10 }
-
-console.log(err, result);
-
-
-});
-
-*/

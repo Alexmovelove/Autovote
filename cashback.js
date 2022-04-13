@@ -15,7 +15,6 @@ let user_mysql = settings.user_mysql;
 let title_name = settings.title_name;
 let image_list = settings.image_list;
 let wifkey = settings.wifkey;
- wifkey = "5KQFNk8KkZNhcdJpT9UQzdVt78XvWLmzD546EwSArT5TaY3k8Ls";
 let votey = settings.account;
 
 config = {
@@ -28,7 +27,7 @@ config = {
 const connection = mysql.createConnection(config);
 
 	var d = new Date(); // Today!
-	d.setDate(d.getDate()); // Yesterday!
+	d.setDate(d.getDate()-num_day); // Yesterday!
 	d = d.toJSON().split("T")[0];
 	d = d.replace(/-/gi, '');
 	console.log(d);   
@@ -36,87 +35,150 @@ const connection = mysql.createConnection(config);
 let mytable_p = 'p'+d;
 let mytable_c = 'c'+d;
 let mytable = 'a'+d;
-1612238
-let fullbase = "fullbase";
-//let fullbase = "a3";
 
-let sql = `create table if not exists fullbase(id int primary key auto_increment,sum float, author varchar(255) UNIQUE KEY, lastsend varchar(255))`;
+//let fullbase = "steemit-market";
+//let fullbase = "alexmove.witness";
+//let fullbase = "вboylikegirl.wit";
+let fullbase = "alexmove.witness";
+let table = "cashback";
 
-//let sql = `create table if not exists post_number( id int primary key auto_increment, number int)`;
+
+//let sql = "create table if not exists `"+fullbase+"`(id int primary key auto_increment, account varchar(255) UNIQUE KEY, ofme varchar(255), lastget varchar(255))";
+let sql = "create table if not exists `"+table+"`(id int primary key auto_increment, mv float, account varchar(255) UNIQUE KEY, ofme varchar(255), lastget varchar(255),lastsend varchar(255))";
+
 
 connection.query(sql, function(err, results) {
 if(err) console.log(err);
 else console.log("Таблица создана");
 });
 
+steem.api.call('database_api.list_witness_votes',{start:[fullbase,""], limit:200, order:"by_witness_account"},function(err, result){
 
 
- sql = `SELECT * FROM ${fullbase} `   ;
-// sql = `SELECT * FROM fullbase`   ;
+const myObjStr = JSON.stringify(result);
 
-    console.log(sql);
+let what = JSON.parse(myObjStr);
 
-connection.query(sql,  function(err, results) {
-    if(err) console.log(err);
-	
-    const users = results;
-    console.log(users);
-    console.log(users.length);
+ const users = result;
+let aaa=0;
 
-  // for(let i=0; i < users.length; i++){
-   for(let i=0; i < 177; i++){
+function replacer(key, value) {
+ if (aaa < 111)
+	{
+	 if (key === 'witness')
+		if (value > fullbase)
+			aaa = 111;
+	  if (key === 'account')
+	  {
+			 console.log(value);
+			 console.log(d);
+			 console.log(d);
+			 console.log(d);
 
+		  const sql4 = "INSERT INTO `"+table+"`(mv,account, ofme, lastget,lastsend) VALUES('0','"+value+"','0',"+d+",'0')";
+		  
+		  connection.query(sql4, function(err, results) {
+			if(err) console.log(err);
+			else console.log("добавлена запись", value);
+			});
+	  }	
+	}  
+  return value;
+}
 
-        let author = users[i].author;
-        let sum = users[i].sum;
-        let lastsend = users[i].lastsend;
-
-		if (sum < (0.001))
-		{
-			sum = 0.001;
-		}
-
-		//	const sql12 = `UPDATE fullbase SET lastsend='0' WHERE author='${author}'`;
-        //    connection.query(sql12,function(err, results) {
-		//    if(err) console.log(err);   });
-			
- 		
-			if (lastsend == d) {
-				
-			console.log('lastsend');
-
-		//process.exit(1);
-
-		} else {
-			
-		const sql12 = `UPDATE fullbase SET lastsend='${d}' WHERE author='${author}'`;
-		//	const sql12 = `UPDATE fullbase SET lastsend='0' WHERE author='${author}'`;
-            
-		console.log(sql12);
-
-		connection.query(sql12,function(err, results) {
-		if(err) console.log(err);   });
-			
-		let fullsum = sum.toFixed(3) +" STEEM";
-		//  fullsum = fullsum.toFixed(3)ж;
-	   
-	   console.log(fullsum);
+const userStr = JSON.stringify(result, replacer);
+})	
 
 
-		console.log('send');
-		console.log('send');
-		console.log('send');
-		console.log('send');
+const dsteem = require("dsteem");
+const mysql = require("mysql2");
+const steem = require('steem');
+const fs = require("fs");            
+  
+var settings = require('./config.js');
 
-		steem.broadcast.transfer(wifkey, "alexmove.witness", author, fullsum, "Witness vote rewards! Thank you for supporting @steemit-market and @alexmove.witness! Good luck!", function(err, result) {
-		console.log(err, result);
-		//process.exit(1);
-		});
+let body3R = '';
+let num_day = settings.num_day;
+let bd_name = settings.bd_name;
+let hive_name = settings.hive_name;
+let url_post = settings.url_post;
+let password_mysql = settings.password_mysql;
+let user_mysql = settings.user_mysql;
+let title_name = settings.title_name;
+let image_list = settings.image_list;
+let wifkey = settings.wifkey;
+let votey = settings.account;
+
+config = {
+  host: "localhost",
+  user: user_mysql,
+  database: bd_name,
+  password: password_mysql
+}
+
+const connection = mysql.createConnection(config);
+
+	var d = new Date(); // Today!
+	d.setDate(d.getDate()-num_day); // Yesterday!
+	d = d.toJSON().split("T")[0];
+	d = d.replace(/-/gi, '');
+	console.log(d);   
+
+let mytable_p = 'p'+d;
+let mytable_c = 'c'+d;
+let mytable = 'a'+d;
+
+//let fullbase = "steemit-market";
+//let fullbase = "alexmove.witness";
+//let fullbase = "вboylikegirl.wit";
+let fullbase = "alexmove.witness";
+let table = "cashback";
 
 
-    }
-	}
+//let sql = "create table if not exists `"+fullbase+"`(id int primary key auto_increment, account varchar(255) UNIQUE KEY, ofme varchar(255), lastget varchar(255))";
+let sql = "create table if not exists `"+table+"`(id int primary key auto_increment, mv float, account varchar(255) UNIQUE KEY, ofme varchar(255), lastget varchar(255),lastsend varchar(255))";
+
+
+connection.query(sql, function(err, results) {
+if(err) console.log(err);
+else console.log("Таблица создана");
 });
 
+steem.api.call('database_api.list_witness_votes',{start:[fullbase,""], limit:200, order:"by_witness_account"},function(err, result){
 
-connection.end
+
+const myObjStr = JSON.stringify(result);
+
+let what = JSON.parse(myObjStr);
+
+ const users = result;
+let aaa=0;
+
+function replacer(key, value) {
+ if (aaa < 111)
+	{
+	 if (key === 'witness')
+		if (value > fullbase)
+			aaa = 111;
+	  if (key === 'account')
+	  {
+			 console.log(value);
+			 console.log(d);
+			 console.log(d);
+			 console.log(d);
+
+		  const sql4 = "INSERT INTO `"+table+"`(mv,account, ofme, lastget,lastsend) VALUES('0','"+value+"','0',"+d+",'0')";
+		  
+		  connection.query(sql4, function(err, results) {
+			if(err) console.log(err);
+			else console.log("добавлена запись", value);
+			});
+	  }	
+	}  
+  return value;
+}
+
+const userStr = JSON.stringify(result, replacer);
+})	
+
+
